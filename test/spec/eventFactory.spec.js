@@ -1,7 +1,8 @@
 'use strict';
 
 (function() {
-  var eventFactory = dragMock.eventFactory;
+  var eventFactory = dragMock.eventFactory
+    , DataTransfer = dragMock.DataTransfer;
 
   describe('Event factory', function() {
 
@@ -21,6 +22,20 @@
 
       expect(dragStartEvent).to.be.a(Event);
       expect(dragStartEvent.type).to.equal('dragstart');
+    });
+
+    it('createEvent method produces events with dataTransfer objects', function() {
+      ['drag', 'dragstart', 'dragend', 'drop'].forEach(function(eventName) {
+        var event = eventFactory.createEvent(eventName);
+        expect(event.dataTransfer).to.be.a(DataTransfer);
+      });
+    });
+
+    it('createEvent method allows reusing dataTransfer objects', function() {
+      var dragEvent = eventFactory.createEvent('drag');
+      var dropEvent = eventFactory.createEvent('drop', dragEvent.dataTransfer);
+
+      expect(dropEvent.dataTransfer).to.equal(dragEvent.dataTransfer);
     });
 
   });

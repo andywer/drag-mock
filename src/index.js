@@ -16,6 +16,7 @@ var DragMock = {
   },
 
   // Just for unit testing:
+  DataTransfer: require('./DataTransfer'),
   DragDropAction: require('./DragDropAction'),
   eventFactory: require('./eventFactory')
 };

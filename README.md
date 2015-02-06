@@ -69,6 +69,12 @@ dragMock
   });
 ```
 
+## Additional features
+
+The following events are provided with a fake (but fully functional) dataTransfer object:
+`drag`, `dragstart`, `dragend`, `drop`
+
+
 ## License
 
 This software is licensed under the terms of the MIT license. See LICENSE for details.

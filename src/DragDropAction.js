@@ -1,5 +1,6 @@
 
-var eventFactory = require('./eventFactory');
+var eventFactory = require('./eventFactory')
+  , DataTransfer = require('./DataTransfer');
 
 
 function _noop() {}
@@ -53,9 +54,9 @@ function customizeEvent(event, eventProperties, configCallback, isPrimaryEvent) 
 }
 
 
-function createAndDispatchEvents(targetElement, eventNames, primaryEventName, eventProperties, configCallback) {
+function createAndDispatchEvents(targetElement, eventNames, primaryEventName, dataTransfer, eventProperties, configCallback) {
   eventNames.forEach(function(eventName) {
-    var event = eventFactory.createEvent(eventName);
+    var event = eventFactory.createEvent(eventName, dataTransfer);
     var isPrimaryEvent = eventName === primaryEventName;
 
     customizeEvent(event, eventProperties, configCallback, isPrimaryEvent);
@@ -67,16 +68,19 @@ function createAndDispatchEvents(targetElement, eventNames, primaryEventName, ev
 
 var DragDropAction = function() {
   this.lastDragSource = null;
+  this.lastDataTransfer = null;
 };
 
 
 DragDropAction.prototype.dragStart = function(targetElement, eventProperties, configCallback) {
-  var params = parseParams(targetElement, eventProperties, configCallback);
-  var events = ['mousedown', 'dragstart', 'drag'];
+  var params = parseParams(targetElement, eventProperties, configCallback)
+    , events = ['mousedown', 'dragstart', 'drag']
+    , dataTransfer = new DataTransfer();
 
-  createAndDispatchEvents(params.targetElement, events, 'drag', params.eventProperties, params.configCallback);
+  createAndDispatchEvents(params.targetElement, events, 'drag', dataTransfer, params.eventProperties, params.configCallback);
 
   this.lastDragSource = targetElement;
+  this.lastDataTransfer = dataTransfer;
 
   return this;
 };
@@ -86,11 +90,11 @@ DragDropAction.prototype.drop = function(targetElement, eventProperties, configC
   var params = parseParams(targetElement, eventProperties, configCallback);
   var events = ['mouseup', 'drop'];
 
-  createAndDispatchEvents(params.targetElement, events, 'drop', params.eventProperties, params.configCallback);
+  createAndDispatchEvents(params.targetElement, events, 'drop', this.lastDataTransfer, params.eventProperties, params.configCallback);
 
   if (this.lastDragSource) {
     // trigger dragend event on last drag source element
-    createAndDispatchEvents(this.lastDragSource, ['dragend'], 'drop', params.eventProperties, params.configCallback);
+    createAndDispatchEvents(this.lastDragSource, ['dragend'], 'drop', this.lastDataTransfer, params.eventProperties, params.configCallback);
   }
 
   return this;
