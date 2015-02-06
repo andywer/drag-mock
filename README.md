@@ -1,5 +1,8 @@
 # drag-mock
+[![Build Status](https://travis-ci.org/andywer/drag-mock.svg?branch=master)](https://travis-ci.org/andywer/drag-mock) [![npm version](https://badge.fury.io/js/drag-mock.svg)](http://badge.fury.io/js/drag-mock)
+
 Trigger HTML5 drag &amp; drop events for testing
+
 
 ## Requirements
 
