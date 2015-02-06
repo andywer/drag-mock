@@ -122,35 +122,30 @@ module.exports = DragDropAction;
 
 },{"./eventFactory":3}],3:[function(require,module,exports){
 
-// uses event constructors
-var ModernEventFactory = {
-  createEvent: function(eventName, eventType) {
-    var constructor = window[eventType];
+function createEvent(eventName, eventType) {
+  var event = document.createEvent(eventType);
 
-    return new constructor(eventName, {
-      view: window,
-      bubbles: true,
-      cancelable: true
-    });
-  }
-};
+  event.initEvent(eventName, true, true);
 
-// uses document.createEvent()
-var FallbackEventFactory = {
-  createEvent: function(eventName, eventType) {
-    var event = document.createEvent(eventType);
-
-    event.initEvent(eventName, true, true);
-
-    return event;
-  }
-};
-
-if (document.implementation.hasFeature('MouseEvent', '4.0')) {
-  module.exports = ModernEventFactory;
-} else {
-  module.exports = FallbackEventFactory;
+  return event;
 }
+
+
+var EventFactory = {
+  createEvent: function(eventName) {
+    var eventType = 'Event';
+
+    if (eventName.substr(0, 5) === 'mouse') {
+      eventType = 'MouseEvent';
+    } else if (eventName.substr(0, 4) === 'drag' && window.DragEvent) {
+      eventType = 'DragEvent';
+    }
+
+    return createEvent(eventName, eventType);
+  }
+};
+
+module.exports = EventFactory;
 
 },{}],4:[function(require,module,exports){
 
@@ -168,9 +163,13 @@ var DragMock = {
   },
   drop: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'drop', arguments);
-  }
+  },
+
+  // Just for unit testing:
+  DragDropAction: require('./DragDropAction'),
+  eventFactory: require('./eventFactory')
 };
 
 module.exports = DragMock;
 
-},{"./DragDropAction":2}]},{},[1]);
+},{"./DragDropAction":2,"./eventFactory":3}]},{},[1]);

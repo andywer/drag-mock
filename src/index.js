@@ -13,7 +13,11 @@ var DragMock = {
   },
   drop: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'drop', arguments);
-  }
+  },
+
+  // Just for unit testing:
+  DragDropAction: require('./DragDropAction'),
+  eventFactory: require('./eventFactory')
 };
 
 module.exports = DragMock;
