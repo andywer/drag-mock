@@ -14,7 +14,7 @@ gulp.task('browserify', function() {
 });
 
 
-gulp.task('uglify', function() {
+gulp.task('uglify', ['browserify'], function() {
   return gulp.src('dist/drag-mock.js')
     .pipe(uglify())
     .pipe(concat('drag-mock.min.js'))
