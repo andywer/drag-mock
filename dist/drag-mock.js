@@ -47,15 +47,6 @@ function parseParams(targetElement, eventProperties, configCallback) {
 }
 
 
-function createEvent(eventName) {
-  if (eventName.substr(0, 5) === 'mouse') {
-    return eventFactory.createEvent(eventName, 'MouseEvent');
-  } else {
-    return eventFactory.createEvent(eventName, 'Event');
-  }
-}
-
-
 function customizeEvent(event, eventProperties, configCallback, isPrimaryEvent) {
   // copy eventProperties into event
   if (eventProperties) {
@@ -77,7 +68,7 @@ function customizeEvent(event, eventProperties, configCallback, isPrimaryEvent) 
 
 function createAndDispatchEvents(targetElement, eventNames, primaryEventName, eventProperties, configCallback) {
   eventNames.forEach(function(eventName) {
-    var event = createEvent(eventName);
+    var event = eventFactory.createEvent(eventName);
     var isPrimaryEvent = eventName === primaryEventName;
 
     customizeEvent(event, eventProperties, configCallback, isPrimaryEvent);
