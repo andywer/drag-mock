@@ -106,8 +106,8 @@ function customizeEvent(event, eventProperties, configCallback, isPrimaryEvent) 
 
   if (configCallback) {
     // call configCallback only for the primary event if the callback takes less than two arguments
-    if (configCallback.length < 2 && isPrimaryEvent) {
-      configCallback(event);
+    if (configCallback.length < 2) {
+      if (isPrimaryEvent) { configCallback(event); }
     }
     // call configCallback for each event if the callback takes two arguments
     else {

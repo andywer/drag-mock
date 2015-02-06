@@ -100,10 +100,34 @@
           expect(event.foo).to.equal('bar');
         });
 
-        action.dragStart(elementA, function(event) {
+        action.dragStart(elementA, function(event, eventName) {
           event.hello = 'world';
           event.foo = 'bar';
         });
+      });
+
+      it('calls one-argument callback only once for drag event', function() {
+        var timesCalled = 0;
+
+        action.dragStart(elementA, function(event) {
+          expect(event.type).to.equal('drag');
+          timesCalled++;
+        });
+
+        expect(timesCalled).to.equal(1);
+      });
+
+      it('calls two-argument callback for mousedown, drag & dragstart event', function() {
+        var timesCalled = 0
+          , eventNames = [];
+
+        action.dragStart(elementA, function(event, eventName) {
+          eventNames.push(eventName);
+          timesCalled++;
+        });
+
+        expect(timesCalled).to.equal(3);
+        expect(eventNames).to.eql(['mousedown', 'dragstart', 'drag']);
       });
 
       it('customizes events with given properties and using a custom callback', function(done) {
@@ -112,7 +136,7 @@
           expect(event.foo).to.equal('bar');
         });
 
-        action.dragStart(elementA, { hello: 'world' }, function(event) {
+        action.dragStart(elementA, { hello: 'world' }, function(event, eventName) {
           event.foo = 'bar';
         });
       });
