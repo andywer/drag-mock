@@ -1,16 +1,3 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-
-var dragMock = require('./src/index.js');
-
-if (typeof define === 'function') {
-  define('dragMock', function() {
-    return dragMock;
-  });
-} else {
-  window.dragMock = dragMock;
-}
-
-},{"./src/index.js":4}],2:[function(require,module,exports){
 
 var eventFactory = require('./eventFactory');
 
@@ -119,58 +106,3 @@ DragDropAction.prototype.drop = function(targetElement, eventProperties, configC
 };
 
 module.exports = DragDropAction;
-
-},{"./eventFactory":3}],3:[function(require,module,exports){
-
-// uses event constructors
-var ModernEventFactory = {
-  createEvent: function(eventName, eventType) {
-    var constructor = window[eventType];
-
-    return new constructor(eventName, {
-      view: window,
-      bubbles: true,
-      cancelable: true
-    });
-  }
-};
-
-// uses document.createEvent()
-var FallbackEventFactory = {
-  createEvent: function(eventName, eventType) {
-    var event = document.createEvent(eventType);
-
-    event.initEvent(eventName, true, true);
-
-    return event;
-  }
-};
-
-if (document.implementation.hasFeature('MouseEvent', '4.0')) {
-  module.exports = ModernEventFactory;
-} else {
-  module.exports = FallbackEventFactory;
-}
-
-},{}],4:[function(require,module,exports){
-
-var DragDropAction = require('./DragDropAction');
-
-
-function call(instance, methodName, args) {
-  return instance[methodName].apply(instance, args);
-}
-
-
-var DragMock = {
-  dragStart: function(targetElement, eventProperties, configCallback) {
-    return call(new DragDropAction(), 'dragStart', arguments);
-  },
-  drop: function(targetElement, eventProperties, configCallback) {
-    return call(new DragDropAction(), 'drop', arguments);
-  }
-};
-
-module.exports = DragMock;
-
-},{"./DragDropAction":2}]},{},[1]);
