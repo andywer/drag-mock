@@ -3,7 +3,8 @@ var gulp = require('gulp')
   , browserify = require('browserify')
   , uglify = require('gulp-uglify')
   , source = require('vinyl-source-stream')
-  , mochaPhantomJS = require('gulp-mocha-phantomjs');
+  , mochaPhantomJS = require('gulp-mocha-phantomjs')
+  , deploy = require('gulp-gh-pages');
 
 
 gulp.task('browserify', function() {
@@ -25,7 +26,16 @@ gulp.task('uglify', ['browserify'], function() {
 gulp.task('test', function() {
   return gulp
     .src('test/runner.html')
-    .pipe(mochaPhantomJS({ webSecurityEnabled: false, outputEncoding: 'utf8', localToRemoteUrlAccessEnabled: true }));
+    .pipe(mochaPhantomJS({
+      webSecurityEnabled: false,
+      outputEncoding: 'utf8'
+    }));
+});
+
+
+gulp.task('deploy', ['dist', 'test'], function() {
+  return gulp.src('./dist/**/*')
+    .pipe(deploy());
 });
 
 
