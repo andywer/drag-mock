@@ -22,7 +22,7 @@ function parseParams(targetElement, eventProperties, configCallback) {
     eventProperties = null;
   }
 
-  if (typeof targetElement !== 'object') {
+  if (!targetElement || typeof targetElement !== 'object') {
     throw new Error('Expected first parameter to be a targetElement. Instead got: ' + targetElement);
   }
 
@@ -83,7 +83,7 @@ DragDropAction.prototype.dragStart = function(targetElement, eventProperties, co
   var params = parseParams(targetElement, eventProperties, configCallback);
   var events = ['mousedown', 'dragstart', 'drag'];
 
-  createAndDispatchEvents(targetElement, events, 'drag', params.eventProperties, params.configCallback);
+  createAndDispatchEvents(params.targetElement, events, 'drag', params.eventProperties, params.configCallback);
 
   this.lastDragSource = targetElement;
 
@@ -95,7 +95,7 @@ DragDropAction.prototype.drop = function(targetElement, eventProperties, configC
   var params = parseParams(targetElement, eventProperties, configCallback);
   var events = ['mouseup', 'drop'];
 
-  createAndDispatchEvents(targetElement, events, 'drop', params.eventProperties, params.configCallback);
+  createAndDispatchEvents(params.targetElement, events, 'drop', params.eventProperties, params.configCallback);
 
   if (this.lastDragSource) {
     // trigger dragend event on last drag source element
