@@ -2,7 +2,7 @@
   "name": "drag-mock",
   "version": "0.9.0",
   "description": "Trigger HTML5 drag & drop events for testing",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "precommit": "gulp && git add dist",
     "test": "./node_modules/.bin/gulp test"

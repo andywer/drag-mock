@@ -1,6 +1,5 @@
 
-var DragDropAction = require('./DragDropAction')
-  , webdriverBridge = require('./webdriverBridge');
+var DragDropAction = require('./DragDropAction');
 
 
 function call(instance, methodName, args) {
@@ -14,10 +13,6 @@ var dragMock = {
   },
   drop: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'drop', arguments);
-  },
-
-  extendWebdriver: function(webdriver) {
-    webdriverBridge.init(webdriver);
   },
 
   // Just for unit testing:
