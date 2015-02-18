@@ -13,7 +13,6 @@
     it('createEvent method produces valid MouseEvents', function() {
       var mouseDownEvent = eventFactory.createEvent('mousedown');
 
-      expect(mouseDownEvent).to.be.a(MouseEvent);
       expect(mouseDownEvent.type).to.equal('mousedown');
     });
 

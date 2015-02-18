@@ -6,9 +6,9 @@ if (typeof define === 'function') {
   define('dragMock', function() {
     return dragMock;
   });
-} else {
-  window.dragMock = dragMock;
 }
+
+window.dragMock = dragMock;
 
 },{"./src/index.js":5}],2:[function(require,module,exports){
 
@@ -172,30 +172,17 @@ var DataTransfer = require('./DataTransfer');
 var dataTransferEvents = ['drag', 'dragstart', 'dragend', 'drop'];
 
 
-function createEvent(eventName, eventType, dataTransfer) {
-  var event = document.createEvent(eventType);
-
-  event.initEvent(eventName, true, true);
-
-  if (dataTransferEvents.indexOf(eventName) > -1) {
-    event.dataTransfer = dataTransfer || new DataTransfer();
-  }
-
-  return event;
-}
-
-
 var EventFactory = {
   createEvent: function(eventName, dataTransfer) {
-    var eventType = 'Event';
+    var event = document.createEvent('CustomEvent');
 
-    if (eventName.substr(0, 5) === 'mouse') {
-      eventType = 'MouseEvent';
-    } else if (eventName.substr(0, 4) === 'drag' && window.DragEvent) {
-      eventType = 'DragEvent';
+    event.initCustomEvent(eventName, true, true, 0);
+
+    if (dataTransferEvents.indexOf(eventName) > -1) {
+      event.dataTransfer = dataTransfer || new DataTransfer();
     }
 
-    return createEvent(eventName, eventType, dataTransfer);
+    return event;
   }
 };
 
@@ -203,7 +190,8 @@ module.exports = EventFactory;
 
 },{"./DataTransfer":2}],5:[function(require,module,exports){
 
-var DragDropAction = require('./DragDropAction');
+var DragDropAction = require('./DragDropAction')
+  , webdriverBridge = require('./webdriverBridge');
 
 
 function call(instance, methodName, args) {
@@ -211,12 +199,16 @@ function call(instance, methodName, args) {
 }
 
 
-var DragMock = {
+var dragMock = {
   dragStart: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'dragStart', arguments);
   },
   drop: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'drop', arguments);
+  },
+
+  extendWebdriver: function(webdriver) {
+    webdriverBridge.init(webdriver);
   },
 
   // Just for unit testing:
@@ -225,6 +217,101 @@ var DragMock = {
   eventFactory: require('./eventFactory')
 };
 
-module.exports = DragMock;
+module.exports = dragMock;
 
-},{"./DataTransfer":2,"./DragDropAction":3,"./eventFactory":4}]},{},[1]);
+},{"./DataTransfer":2,"./DragDropAction":3,"./eventFactory":4,"./webdriverBridge":6}],6:[function(require,module,exports){
+
+var nextClientActionId = 1;
+
+
+var DragMockClientActionBridge = function(webdriver, actionId) {
+  this.webdriver = webdriver;
+  this.actionId = actionId;
+};
+
+['dragStart', 'drop'].forEach(function(methodName) {
+  DragMockClientActionBridge.prototype[methodName] = function() {
+    var self = this;
+
+    var args = Array.prototype.slice.call(arguments);
+    var callback = function () {};
+
+    if (typeof args[args.length - 1] === 'function') {
+      callback = args.pop();
+    }
+
+    var browserScript = function() {
+      // executed in browser context
+      window._dragMockActions = window._dragMockActions || {};
+      var action = window._dragMockActions[actionId] || dragMock;
+
+      args[0] = document.querySelector(args[0]);
+      var returnedAction = action[methodName].apply(action, args);
+
+      window._dragMockActions[actionId] = returnedAction;
+
+      return returnedAction;
+    };
+
+    // using this ugly hack, since selenium seems to not pass arguments given to the execute() method
+    var script =
+      'var methodName = ' + JSON.stringify(methodName) + ';' +
+      'var actionId = ' + JSON.stringify(self.actionId) + ';' +
+      'var args = ' + JSON.stringify(args) + ';' +
+      'return (' +
+      browserScript +
+      ')();';
+
+    this.webdriver.execute(
+      script, function(err) {
+        // back in node.js context
+        callback(err, self);
+      });
+
+    return self;
+  };
+});
+
+
+function extendWebdriverPrototype(webdriverPrototype) {
+  webdriverPrototype.dragStart = function() {
+    var clientAction = new DragMockClientActionBridge(this, nextClientActionId++);
+
+    clientAction.dragStart.apply(clientAction, arguments);
+
+    return clientAction;
+  };
+
+  webdriverPrototype.drop = function() {
+    var clientAction = new DragMockClientActionBridge(this, nextClientActionId++);
+
+    clientAction.drop.apply(clientAction, arguments);
+
+    return clientAction;
+  };
+}
+
+function extendWebdriverFactory(webdriver) {
+  var originalMethod = webdriver.remote;
+
+  webdriver.remote = function() {
+    var instance = originalMethod.apply(webdriver, arguments);
+
+    extendWebdriverPrototype(instance.constructor.prototype);
+    return instance;
+  }
+}
+
+var webdriverBridge = {
+  init: function(webdriver) {
+    if (webdriver.version && webdriver.remote) {
+      extendWebdriverFactory(webdriver);
+    } else {
+      extendWebdriverPrototype(webdriver.constructor.prototype);
+    }
+  }
+};
+
+module.exports = webdriverBridge;
+
+},{}]},{},[1]);
