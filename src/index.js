@@ -1,5 +1,6 @@
 
-var DragDropAction = require('./DragDropAction');
+var DragDropAction = require('./DragDropAction')
+  , webdriverBridge = require('./webdriverBridge');
 
 
 function call(instance, methodName, args) {
@@ -7,12 +8,16 @@ function call(instance, methodName, args) {
 }
 
 
-var DragMock = {
+var dragMock = {
   dragStart: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'dragStart', arguments);
   },
   drop: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'drop', arguments);
+  },
+
+  extendWebdriver: function(webdriver) {
+    webdriverBridge.init(webdriver);
   },
 
   // Just for unit testing:
@@ -21,4 +26,4 @@ var DragMock = {
   eventFactory: require('./eventFactory')
 };
 
-module.exports = DragMock;
+module.exports = dragMock;
