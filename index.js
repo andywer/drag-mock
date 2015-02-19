@@ -1,6 +1,5 @@
 
 var dragMock = require('./src')
-  , fs = require('fs')
   , webdriverBridge = require('./node-src/webdriverBridge');
 
 
@@ -9,7 +8,7 @@ var dragMock = require('./src')
  * @param {object}    webdriver
  */
 dragMock.extendWebdriver = function(webdriver) {
-  webdriverBridge.init(webdriver);
+  return webdriverBridge.init(webdriver);
 };
 
 /**
@@ -18,11 +17,7 @@ dragMock.extendWebdriver = function(webdriver) {
  * @param {function}  [done]      Optional callback: done({object|null} error)
  */
 dragMock.loadLibrary = function(webdriver, done) {
-  var dragMockLib = fs.readFileSync(__dirname + '/dist/drag-mock.js', { encoding: 'utf-8' });
-
-  webdriver.execute(dragMockLib, function (error) {
-    if (typeof done === 'function') { done(error); }
-  });
+  return webdriverBridge.loadLibrary(webdriver, done);
 };
 
 

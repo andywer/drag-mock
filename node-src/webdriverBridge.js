@@ -1,4 +1,6 @@
 
+var fs = require('fs');
+
 var nextClientActionId = 1;
 
 
@@ -80,14 +82,25 @@ function extendWebdriverFactory(webdriver) {
   }
 }
 
+
 var webdriverBridge = {
+
   init: function(webdriver) {
     if (webdriver.version && webdriver.remote) {
       extendWebdriverFactory(webdriver);
     } else {
       extendWebdriverPrototype(webdriver.constructor.prototype);
     }
+  },
+
+  loadLibrary: function(webdriver, done) {
+    var dragMockLib = fs.readFileSync(__dirname + '/../dist/drag-mock.js', { encoding: 'utf-8' });
+
+    webdriver.execute(dragMockLib, function (error) {
+      if (typeof done === 'function') { done(error); }
+    });
   }
+
 };
 
 module.exports = webdriverBridge;
