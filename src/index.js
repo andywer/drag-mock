@@ -11,6 +11,9 @@ var dragMock = {
   dragStart: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'dragStart', arguments);
   },
+  dragOver: function(targetElement, eventProperties, configCallback) {
+    return call(new DragDropAction(), 'dragOver', arguments);
+  },
   drop: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'drop', arguments);
   },

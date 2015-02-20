@@ -143,10 +143,22 @@
 
     });
 
+
+    describe('dragOver method', function() {
+
+      it('creates expected events (without prior call to dragStart())', function(done) {
+        expectEvents(elementA, ['mousemove', 'mouseover', 'dragover'], done);
+
+        action.dragOver(elementA);
+      });
+
+    });
+
+
     describe('drop method', function() {
 
       it('creates expected events (without prior call to dragStart())', function(done) {
-        expectEvents(elementA, ['mouseup', 'drop'], done);
+        expectEvents(elementA, ['mousemove', 'mouseup', 'drop'], done);
 
         action.drop(elementA);
       });

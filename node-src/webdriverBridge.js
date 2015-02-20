@@ -9,7 +9,7 @@ var DragMockClientActionBridge = function(webdriver, actionId) {
   this.actionId = actionId;
 };
 
-['dragStart', 'drop'].forEach(function(methodName) {
+['dragStart', 'dragOver', 'drop'].forEach(function(methodName) {
   DragMockClientActionBridge.prototype[methodName] = function() {
     var self = this;
 
@@ -54,21 +54,19 @@ var DragMockClientActionBridge = function(webdriver, actionId) {
 
 
 function extendWebdriverPrototype(webdriverPrototype) {
-  webdriverPrototype.dragStart = function() {
-    var clientAction = new DragMockClientActionBridge(this, nextClientActionId++);
+  function createActionAndCallMethod(methodName) {
+    return function() {
+      var clientAction = new DragMockClientActionBridge(this, nextClientActionId++);
 
-    clientAction.dragStart.apply(clientAction, arguments);
+      clientAction[methodName].apply(clientAction, arguments);
 
-    return clientAction;
-  };
+      return clientAction;
+    };
+  }
 
-  webdriverPrototype.drop = function() {
-    var clientAction = new DragMockClientActionBridge(this, nextClientActionId++);
-
-    clientAction.drop.apply(clientAction, arguments);
-
-    return clientAction;
-  };
+  webdriverPrototype.dragStart = createActionAndCallMethod('dragStart');
+  webdriverPrototype.dragOver = createActionAndCallMethod('dragOver');
+  webdriverPrototype.drop = createActionAndCallMethod('drop');
 }
 
 function extendWebdriverFactory(webdriver) {

@@ -6,17 +6,6 @@ var eventFactory = require('./eventFactory')
 function _noop() {}
 
 
-function mergeInto(destObj, srcObj) {
-  for (var key in srcObj) {
-    if (!srcObj.hasOwnProperty(key)) { continue; }   // ignore inherited properties
-
-    destObj[key] = srcObj[key];
-  }
-
-  return destObj;
-}
-
-
 function parseParams(targetElement, eventProperties, configCallback) {
   if (typeof eventProperties === 'function') {
     configCallback = eventProperties;
@@ -35,12 +24,7 @@ function parseParams(targetElement, eventProperties, configCallback) {
 }
 
 
-function customizeEvent(event, eventProperties, configCallback, isPrimaryEvent) {
-  // copy eventProperties into event
-  if (eventProperties) {
-    mergeInto(event, eventProperties);
-  }
-
+function customizeEvent(event, configCallback, isPrimaryEvent) {
   if (configCallback) {
     // call configCallback only for the primary event if the callback takes less than two arguments
     if (configCallback.length < 2) {
@@ -56,10 +40,10 @@ function customizeEvent(event, eventProperties, configCallback, isPrimaryEvent) 
 
 function createAndDispatchEvents(targetElement, eventNames, primaryEventName, dataTransfer, eventProperties, configCallback) {
   eventNames.forEach(function(eventName) {
-    var event = eventFactory.createEvent(eventName, dataTransfer);
+    var event = eventFactory.createEvent(eventName, eventProperties, dataTransfer);
     var isPrimaryEvent = eventName === primaryEventName;
 
-    customizeEvent(event, eventProperties, configCallback, isPrimaryEvent);
+    customizeEvent(event, configCallback, isPrimaryEvent);
 
     targetElement.dispatchEvent(event);
   });
@@ -86,15 +70,26 @@ DragDropAction.prototype.dragStart = function(targetElement, eventProperties, co
 };
 
 
+DragDropAction.prototype.dragOver = function(overElement, eventProperties, configCallback) {
+  var params = parseParams(overElement, eventProperties, configCallback)
+    , events = ['mousemove', 'mouseover', 'dragover'];
+
+  createAndDispatchEvents(params.targetElement, events, 'drag', this.lastDataTransfer, params.eventProperties, params.configCallback);
+
+  return this;
+};
+
+
 DragDropAction.prototype.drop = function(targetElement, eventProperties, configCallback) {
   var params = parseParams(targetElement, eventProperties, configCallback);
-  var events = ['mouseup', 'drop'];
+  var eventsOnDropTarget = ['mousemove', 'mouseup', 'drop'];
+  var eventsOnDragSource = ['dragend'];
 
-  createAndDispatchEvents(params.targetElement, events, 'drop', this.lastDataTransfer, params.eventProperties, params.configCallback);
+  createAndDispatchEvents(params.targetElement, eventsOnDropTarget, 'drop', this.lastDataTransfer, params.eventProperties, params.configCallback);
 
   if (this.lastDragSource) {
     // trigger dragend event on last drag source element
-    createAndDispatchEvents(this.lastDragSource, ['dragend'], 'drop', this.lastDataTransfer, params.eventProperties, params.configCallback);
+    createAndDispatchEvents(this.lastDragSource, eventsOnDragSource, 'drop', this.lastDataTransfer, params.eventProperties, params.configCallback);
   }
 
   return this;
