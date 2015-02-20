@@ -1,6 +1,6 @@
-'use strict';
-
 (function() {
+  'use strict';
+
   describe('drag-mock', function() {
 
     var elementA = document.querySelector('#dom-test > .a')
