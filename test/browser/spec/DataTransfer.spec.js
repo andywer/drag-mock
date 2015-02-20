@@ -1,6 +1,6 @@
-'use strict';
-
 (function() {
+  'use strict';
+
   var DataTransfer = dragMock.DataTransfer;
 
   describe('DataTransfer object', function() {
