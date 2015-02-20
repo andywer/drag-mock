@@ -57,11 +57,13 @@ var dragMock = require('drag-mock');
 ## Usage
 
 ```javascript
-var dragSource = document.querySelector('.draggable');
-var dropTarget = document.querySelector('.drop-target');
+var dragSource  = document.querySelector('.draggable');
+var dropTarget  = document.querySelector('.drop-target');
+var hoverRegion = document.querySelector('.hover-region');
 
 dragMock
   .dragStart(dragSource)
+  .dragOver(hoverRegion)
   .drop(dropTarget);
 ```
 
@@ -120,7 +122,7 @@ describe('My fancy mail app', function() {
 ## Additional features
 
 The following events are provided with a fake (but fully functional) dataTransfer object:
-`drag`, `dragstart`, `dragend`, `drop`
+`drag`, `dragstart`, `dragover`, `dragend`, `drop`
 
 
 ## webdriver.io integration
@@ -134,7 +136,7 @@ var webdriverio = require('webdriverio');
 
 var webdriver = webdriverio.remote({ desiredCapabilities: { browserName: 'chrome' } }).init();
 
-// set up webdriver.dragStart() and webdriver.drop()
+// set up webdriver.dragStart(), webdriver.dragOver() and webdriver.drop()
 dragMock.extendWebdriver(webdriver);
 
 // load the drag-mock library into the browser context
