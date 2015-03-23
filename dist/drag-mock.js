@@ -142,6 +142,14 @@ DragDropAction.prototype.dragOver = function(overElement, eventProperties, confi
   return this;
 };
 
+DragDropAction.prototype.dragLeave = function(overElement, eventProperties, configCallback) {
+  var params = parseParams(overElement, eventProperties, configCallback)
+    , events = ['mousemove', 'mouseover', 'dragleave'];
+
+  createAndDispatchEvents(params.targetElement, events, 'dragleave', this.lastDataTransfer, params.eventProperties, params.configCallback);
+
+  return this;
+};
 
 DragDropAction.prototype.drop = function(targetElement, eventProperties, configCallback) {
   var params = parseParams(targetElement, eventProperties, configCallback);
@@ -262,6 +270,9 @@ var dragMock = {
   },
   dragOver: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'dragOver', arguments);
+  },
+  dragLeave: function(targetElement, eventProperties, configCallback) {
+    return call(new DragDropAction(), 'dragLeave', arguments);
   },
   drop: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'drop', arguments);

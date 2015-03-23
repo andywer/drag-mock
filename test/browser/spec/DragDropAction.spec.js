@@ -18,6 +18,7 @@
     it('provides expected methods', function() {
       expect(action).to.be.a(DragDropAction);
       expect(action.dragStart).to.be.a(Function);
+      expect(action.dragLeave).to.be.a(Function)
       expect(action.drop).to.be.a(Function);
     });
 
@@ -103,6 +104,15 @@
 
     });
 
+    describe('dragLeave method', function() {
+
+      it('creates expected events (without prior call to dragStart())', function(done) {
+        EventHelper.expectEvents(elementA, ['mousemove', 'mouseover', 'dragleave'], done);
+
+        action.dragLeave(elementA);
+      });
+
+    });
 
     describe('drop method', function() {
 

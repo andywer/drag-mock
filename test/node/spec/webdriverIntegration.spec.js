@@ -71,6 +71,7 @@ describe('webdriver.io integration', function() {
     it('extends the given instance', function() {
       expect(webdriver.dragStart).to.be.a('function');
       expect(webdriver.dragOver).to.be.a('function');
+      expect(webdriver.dragLeave).to.be.a('function');
       expect(webdriver.drop).to.be.a('function');
     });
   });
