@@ -24,7 +24,7 @@
     });
 
     it('createEvent method produces events with dataTransfer objects', function() {
-      ['drag', 'dragstart', 'dragover', 'dragend', 'drop'].forEach(function(eventName) {
+      ['drag', 'dragstart', 'dragover', 'dragend', 'drop', 'dragleave'].forEach(function(eventName) {
         var event = eventFactory.createEvent(eventName);
         expect(event.dataTransfer).to.be.a(DataTransfer);
       });

@@ -122,7 +122,7 @@ describe('My fancy mail app', function() {
 ## Additional features
 
 The following events are provided with a fake (but fully functional) dataTransfer object:
-`drag`, `dragstart`, `dragover`, `dragend`, `drop`
+`drag`, `dragstart`, `dragover`, `dragend`, `dragleave`, `drop`
 
 
 ## webdriver.io integration
