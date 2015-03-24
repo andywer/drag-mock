@@ -64,6 +64,7 @@ var hoverRegion = document.querySelector('.hover-region');
 dragMock
   .dragStart(dragSource)
   .dragOver(hoverRegion)
+  .dragLeave(hoverRegion)
   .drop(dropTarget);
 ```
 
@@ -136,35 +137,7 @@ var webdriverio = require('webdriverio');
 
 var webdriver = webdriverio.remote({ desiredCapabilities: { browserName: 'chrome' } }).init();
 
-// set up webdriver.dragStart(), webdriver.dragOver() and webdriver.drop()
-dragMock.extendWebdriver(webdriver);
-
-// load the drag-mock library into the browser context
-dragMock.loadLibrary(webdriver);
-
-// drag and drop
-webdriver
-  .dragStart('#my-drag-source', { clientX: 200, clientY: 300 })
-  .drop('#drop-zone', function(error) {
-    if (error) {
-      console.error(error);
-    }
-  });
-```
-
-
-## webdriver.io integration
-
-If you are running Selenium tests using webdriver.io and you need drag &amp; drop functionality beyond Selenium's dragAndDrop()
-you can easily integrate drag-mock into webdriver:
-
-```javascript
-var dragMock = require('drag-mock');
-var webdriverio = require('webdriverio');
-
-var webdriver = webdriverio.remote({ desiredCapabilities: { browserName: 'chrome' } }).init();
-
-// set up webdriver.dragStart() and webdriver.drop()
+// set up webdriver.dragStart(), webdriver.dragOver(), webdriver.dragLeave() and webdriver.drop()
 dragMock.extendWebdriver(webdriver);
 
 // load the drag-mock library into the browser context
