@@ -19,9 +19,9 @@ function webdriverExecuteAsync(self, script, parameters, callback) {
     parameterAssignments +
     'return (' +
     script +
-    ')();';
+    ')(done);';
 
-  this.webdriver.executeAsync(scriptBody, callback);
+  self.webdriver.executeAsync(new Function("done", scriptBody), callback);
 }
 
 
