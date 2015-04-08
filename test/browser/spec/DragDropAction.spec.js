@@ -144,9 +144,9 @@
       it('can delay execution', function(done) {
         var startTimeMs = getMsTimestamp();
 
-        action.delay(500).delay(1000).then(function() {
+        action.delay(250).delay(500).then(function() {
           expect(this).to.equal(action);
-          expect(getMsTimestamp() - startTimeMs).to.be.greaterThan(1500);
+          expect(getMsTimestamp() - startTimeMs).to.be.greaterThan(749);
 
           done();
         });
