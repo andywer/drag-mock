@@ -1,6 +1,7 @@
 
 var fs = require('fs');
 
+
 var nextClientActionId = 1;
 
 var exportMethods = ['dragStart', 'dragOver', 'dragLeave', 'drop', 'delay'];
@@ -21,7 +22,7 @@ function webdriverExecuteAsync(self, script, parameters, callback) {
     script +
     ')(done);';
 
-  self.webdriver.executeAsync(new Function("done", scriptBody), callback);
+  self.webdriver.executeAsync(new Function('done', scriptBody), callback);
 }
 
 
@@ -48,11 +49,10 @@ exportMethods.forEach(function(methodName) {
       var action = window._dragMockActions[actionId] || dragMock;
 
       args[0] = document.querySelector(args[0]);
-      var returnedAction = action[methodName].apply(action, args);
+      action = action[methodName].apply(action, args);
 
-      window._dragMockActions[actionId] = returnedAction;
-
-      returnedAction.then(done);
+      window._dragMockActions[actionId] = action;
+      action.then(done);
     };
 
     var parameters = {
