@@ -10,10 +10,21 @@
     it('can drag and drop', function(done) {
 
       var bListener, bDone = false
-        , cListener, cDone = false;
+        , cListener, cDone = false
+        , bTimeDropped, cTimeDropped;
 
       function listenersRun() {
-        if (bDone && cDone) { done(); }
+        if (!(bDone && cDone)) { return; }
+
+        expect(cTimeDropped - bTimeDropped).to.be.greaterThan(999);
+
+        done();
+      }
+
+      function getMsTimestamp() {
+        var now = new Date();
+
+        return now.getTime() * 1000 + now.getMilliseconds();
       }
 
       elementB.addEventListener('drop', bListener = function(event) {
@@ -23,6 +34,8 @@
         expect(event.dataTransfer.getData('text')).to.equal('Drop with care!');
 
         elementB.removeEventListener('drop', bListener);
+        bTimeDropped = getMsTimestamp();
+
         bDone = true;
         listenersRun();
       });
@@ -34,6 +47,10 @@
         expect(event.dataTransfer.getData('text')).to.equal('Drop with care!');
 
         elementC.removeEventListener('drop', cListener);
+
+        var now = new Date();
+        cTimeDropped = getMsTimestamp();
+
         cDone = true;
         listenersRun();
       });
@@ -43,6 +60,7 @@
           event.dataTransfer.setData('text', 'Drop with care!');
         })
         .drop(elementB, { clientX: 100, clientY: 200 })
+        .delay(1000)
         .drop(elementC, { clientX: 500, clientY: 400 });
 
     });

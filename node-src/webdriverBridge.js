@@ -3,13 +3,35 @@ var fs = require('fs');
 
 var nextClientActionId = 1;
 
+var exportMethods = ['dragStart', 'dragOver', 'dragLeave', 'drop', 'delay'];
+
+
+// using this ugly hack, since selenium seems to not pass arguments given to the execute() method
+function webdriverExecuteAsync(self, script, parameters, callback) {
+  var parameterAssignments = '';
+
+  for (var paramName in parameters) {
+    var paramValue = parameters[paramName];
+    parameterAssignments += 'var ' + paramName + ' = ' + JSON.stringify(paramValue) + ';';
+  }
+
+  var scriptBody =
+    parameterAssignments +
+    'return (' +
+    script +
+    ')();';
+
+  this.webdriver.executeAsync(scriptBody, callback);
+}
+
 
 var DragMockClientActionBridge = function(webdriver, actionId) {
   this.webdriver = webdriver;
   this.actionId = actionId;
 };
 
-['dragStart', 'dragOver', 'dragLeave', 'drop'].forEach(function(methodName) {
+
+exportMethods.forEach(function(methodName) {
   DragMockClientActionBridge.prototype[methodName] = function() {
     var self = this;
 
@@ -20,7 +42,7 @@ var DragMockClientActionBridge = function(webdriver, actionId) {
       callback = args.pop();
     }
 
-    var browserScript = function() {
+    var browserScript = function(done) {
       // executed in browser context
       window._dragMockActions = window._dragMockActions || {};
       var action = window._dragMockActions[actionId] || dragMock;
@@ -30,23 +52,19 @@ var DragMockClientActionBridge = function(webdriver, actionId) {
 
       window._dragMockActions[actionId] = returnedAction;
 
-      return returnedAction;
+      returnedAction.then(done);
     };
 
-    // using this ugly hack, since selenium seems to not pass arguments given to the execute() method
-    var script =
-      'var methodName = ' + JSON.stringify(methodName) + ';' +
-      'var actionId = ' + JSON.stringify(self.actionId) + ';' +
-      'var args = ' + JSON.stringify(args) + ';' +
-      'return (' +
-      browserScript +
-      ')();';
+    var parameters = {
+      methodName: methodName,
+      actionId: self.actionId,
+      args: args
+    };
 
-    this.webdriver.execute(
-      script, function(err) {
-        // back in node.js context
-        callback(err, self);
-      });
+    webdriverExecuteAsync(self, browserScript, parameters, function(err) {
+      // back in node.js context
+      callback(err, self);
+    });
 
     return self;
   };
@@ -64,10 +82,9 @@ function extendWebdriverPrototype(webdriverPrototype) {
     };
   }
 
-  webdriverPrototype.dragStart = createActionAndCallMethod('dragStart');
-  webdriverPrototype.dragOver = createActionAndCallMethod('dragOver');
-  webdriverPrototype.dragLeave = createActionAndCallMethod('dragLeave');
-  webdriverPrototype.drop = createActionAndCallMethod('drop');
+  exportMethods.forEach(function(methodName) {
+    webdriverPrototype[methodName] = createActionAndCallMethod(methodName);
+  });
 }
 
 function extendWebdriverFactory(webdriver) {

@@ -7,6 +7,13 @@
     , elementB = document.querySelector('#dom-test > .b');
 
 
+  function getMsTimestamp() {
+    var now = new Date();
+
+    return now.getTime() * 1000 + now.getMilliseconds();
+  }
+
+
   describe('DragDropAction', function() {
 
     var action;
@@ -20,6 +27,8 @@
       expect(action.dragStart).to.be.a(Function);
       expect(action.dragLeave).to.be.a(Function)
       expect(action.drop).to.be.a(Function);
+      expect(action.then).to.be.a(Function);
+      expect(action.delay).to.be.a(Function);
     });
 
 
@@ -129,6 +138,22 @@
       });
 
     });
+
+    describe('delay & then method', function() {
+
+      it('can delay execution', function(done) {
+        var startTimeMs = getMsTimestamp();
+
+        action.delay(500).delay(1000).then(function() {
+          expect(this).to.equal(action);
+          expect(getMsTimestamp() - startTimeMs).to.be.greaterThan(1500);
+
+          done();
+        });
+      });
+
+    });
+
 
     it('methods are chainable', function() {
       expect(action.dragStart(elementA)).to.be(action);

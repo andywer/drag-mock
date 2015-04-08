@@ -65,6 +65,7 @@ dragMock
   .dragStart(dragSource)
   .dragOver(hoverRegion)
   .dragLeave(hoverRegion)
+  .delay(500)
   .drop(dropTarget);
 ```
 
@@ -146,6 +147,7 @@ dragMock.loadLibrary(webdriver);
 // drag and drop
 webdriver
   .dragStart('#my-drag-source', { clientX: 200, clientY: 300 })
+  .delay(250)
   .drop('#drop-zone', function(error) {
     if (error) {
       console.error(error);
