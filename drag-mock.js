@@ -116,6 +116,35 @@ function createAndDispatchEvents(targetElement, eventNames, primaryEventName, da
 var DragDropAction = function() {
   this.lastDragSource = null;
   this.lastDataTransfer = null;
+  this.pendingActionsQueue = [];
+};
+
+
+DragDropAction.prototype._queue = function(fn) {
+  this.pendingActionsQueue.push(fn);
+
+  if (this.pendingActionsQueue.length === 1) {
+    this._queueExecuteNext();
+  }
+};
+
+DragDropAction.prototype._queueExecuteNext = function() {
+  if (this.pendingActionsQueue.length === 0) { return; }
+
+  var self = this;
+  var firstPendingAction = this.pendingActionsQueue[0];
+
+  var doneCallback = function() {
+    self.pendingActionsQueue.shift();
+    self._queueExecuteNext();
+  };
+
+  if (firstPendingAction.length === 0) {
+    firstPendingAction.call(this);
+    doneCallback();
+  } else {
+    firstPendingAction.call(this, doneCallback);
+  }
 };
 
 
@@ -124,10 +153,12 @@ DragDropAction.prototype.dragStart = function(targetElement, eventProperties, co
     , events = ['mousedown', 'dragstart', 'drag']
     , dataTransfer = new DataTransfer();
 
-  createAndDispatchEvents(params.targetElement, events, 'drag', dataTransfer, params.eventProperties, params.configCallback);
+  this._queue(function() {
+    createAndDispatchEvents(params.targetElement, events, 'drag', dataTransfer, params.eventProperties, params.configCallback);
 
-  this.lastDragSource = targetElement;
-  this.lastDataTransfer = dataTransfer;
+    this.lastDragSource = targetElement;
+    this.lastDataTransfer = dataTransfer;
+  });
 
   return this;
 };
@@ -137,7 +168,9 @@ DragDropAction.prototype.dragOver = function(overElement, eventProperties, confi
   var params = parseParams(overElement, eventProperties, configCallback)
     , events = ['mousemove', 'mouseover', 'dragover'];
 
-  createAndDispatchEvents(params.targetElement, events, 'drag', this.lastDataTransfer, params.eventProperties, params.configCallback);
+  this._queue(function() {
+    createAndDispatchEvents(params.targetElement, events, 'drag', this.lastDataTransfer, params.eventProperties, params.configCallback);
+  });
 
   return this;
 };
@@ -146,7 +179,9 @@ DragDropAction.prototype.dragLeave = function(overElement, eventProperties, conf
   var params = parseParams(overElement, eventProperties, configCallback)
     , events = ['mousemove', 'mouseover', 'dragleave'];
 
-  createAndDispatchEvents(params.targetElement, events, 'dragleave', this.lastDataTransfer, params.eventProperties, params.configCallback);
+  this._queue(function() {
+    createAndDispatchEvents(params.targetElement, events, 'dragleave', this.lastDataTransfer, params.eventProperties, params.configCallback);
+  });
 
   return this;
 };
@@ -156,12 +191,28 @@ DragDropAction.prototype.drop = function(targetElement, eventProperties, configC
   var eventsOnDropTarget = ['mousemove', 'mouseup', 'drop'];
   var eventsOnDragSource = ['dragend'];
 
-  createAndDispatchEvents(params.targetElement, eventsOnDropTarget, 'drop', this.lastDataTransfer, params.eventProperties, params.configCallback);
+  this._queue(function() {
+    createAndDispatchEvents(params.targetElement, eventsOnDropTarget, 'drop', this.lastDataTransfer, params.eventProperties, params.configCallback);
 
-  if (this.lastDragSource) {
-    // trigger dragend event on last drag source element
-    createAndDispatchEvents(this.lastDragSource, eventsOnDragSource, 'drop', this.lastDataTransfer, params.eventProperties, params.configCallback);
-  }
+    if (this.lastDragSource) {
+      // trigger dragend event on last drag source element
+      createAndDispatchEvents(this.lastDragSource, eventsOnDragSource, 'drop', this.lastDataTransfer, params.eventProperties, params.configCallback);
+    }
+  });
+
+  return this;
+};
+
+DragDropAction.prototype.then = function(callback) {
+  this._queue(function() { callback.call(this); });    // make sure _queue() is given a callback with no arguments
+
+  return this;
+};
+
+DragDropAction.prototype.delay = function(waitingTimeMs) {
+  this._queue(function(done) {
+    window.setTimeout(done, waitingTimeMs);
+  });
 
   return this;
 };
@@ -276,6 +327,9 @@ var dragMock = {
   },
   drop: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'drop', arguments);
+  },
+  delay: function(targetElement, eventProperties, configCallback) {
+    return call(new DragDropAction(), 'delay', arguments);
   },
 
   // Just for unit testing:
