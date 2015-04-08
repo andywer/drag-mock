@@ -328,6 +328,9 @@ var dragMock = {
   drop: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'drop', arguments);
   },
+  delay: function(targetElement, eventProperties, configCallback) {
+    return call(new DragDropAction(), 'delay', arguments);
+  },
 
   // Just for unit testing:
   DataTransfer: require('./DataTransfer'),
