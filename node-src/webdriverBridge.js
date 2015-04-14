@@ -2,9 +2,10 @@
 var fs = require('fs');
 
 
-var nextClientActionId = 1;
+var EXPORT_METHODS = ['dragStart', 'dragOver', 'dragLeave', 'drop', 'delay'];
+var WEBDRIVER_ASYNC_EXEC_TIMEOUT = 2000;
 
-var exportMethods = ['dragStart', 'dragOver', 'dragLeave', 'drop', 'delay'];
+var nextClientActionId = 1;
 
 
 // using this ugly hack, since selenium seems to not pass arguments given to the execute() method
@@ -22,7 +23,9 @@ function webdriverExecuteAsync(self, script, parameters, callback) {
     script +
     ')(done);';
 
-  self.webdriver.executeAsync(new Function('done', scriptBody), callback);
+  self.webdriver
+    .timeoutsAsyncScript(WEBDRIVER_ASYNC_EXEC_TIMEOUT)
+    .executeAsync(new Function('done', scriptBody), callback);
 }
 
 
@@ -32,7 +35,7 @@ var DragMockClientActionBridge = function(webdriver, actionId) {
 };
 
 
-exportMethods.forEach(function(methodName) {
+EXPORT_METHODS.forEach(function(methodName) {
   DragMockClientActionBridge.prototype[methodName] = function() {
     var self = this;
 
@@ -44,11 +47,18 @@ exportMethods.forEach(function(methodName) {
     }
 
     var browserScript = function(done) {
+      var stringStartsWith = function(string, prefix) {
+        return string.indexOf(prefix) === 0;
+      };
+
       // executed in browser context
       window._dragMockActions = window._dragMockActions || {};
       var action = window._dragMockActions[actionId] || dragMock;
 
-      args[0] = document.querySelector(args[0]);
+      if (stringStartsWith(methodName, 'drag') || stringStartsWith(methodName, 'drop')) {
+        // first argument is element selector
+        args[0] = document.querySelector(args[0]);
+      }
       action = action[methodName].apply(action, args);
 
       window._dragMockActions[actionId] = action;
@@ -82,7 +92,7 @@ function extendWebdriverPrototype(webdriverPrototype) {
     };
   }
 
-  exportMethods.forEach(function(methodName) {
+  EXPORT_METHODS.forEach(function(methodName) {
     webdriverPrototype[methodName] = createActionAndCallMethod(methodName);
   });
 }
