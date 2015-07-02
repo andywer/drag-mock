@@ -26,7 +26,7 @@ You can then use it as a window global or as an AMD module
 var dragSource = document.querySelector('.draggable');
 var dropTarget = document.querySelector('.drop-zone');
 
-dragMock.drag(dragSource).drop(dropTarget);
+dragMock.dragStart(dragSource).drop(dropTarget);
 
 
 // AMD
@@ -34,7 +34,7 @@ require(['dragMock'], function(dragMock) {
   var dragSource = document.querySelector('.draggable');
   var dropTarget = document.querySelector('.drop-zone');
 
-  dragMock.drag(dragSource).drop(dropTarget);
+  dragMock.dragStart(dragSource).drop(dropTarget);
 });
 ```
 
