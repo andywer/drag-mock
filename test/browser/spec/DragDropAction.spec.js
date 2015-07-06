@@ -103,6 +103,16 @@
     });
 
 
+    describe('dragEnter method', function() {
+
+      it('creates expected events (without prior call to dragStart())', function(done) {
+        EventHelper.expectEvents(elementA, ['mousemove', 'mouseover', 'dragenter'], done);
+
+        action.dragEnter(elementA);
+      });
+
+    });
+
     describe('dragOver method', function() {
 
       it('creates expected events (without prior call to dragStart())', function(done) {

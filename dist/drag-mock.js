@@ -164,6 +164,17 @@ DragDropAction.prototype.dragStart = function(targetElement, eventProperties, co
 };
 
 
+DragDropAction.prototype.dragEnter = function(overElement, eventProperties, configCallback) {
+  var params = parseParams(overElement, eventProperties, configCallback)
+    , events = ['mousemove', 'mouseover', 'dragenter'];
+
+  this._queue(function() {
+    createAndDispatchEvents(params.targetElement, events, 'dragenter', this.lastDataTransfer, params.eventProperties, params.configCallback);
+  });
+
+  return this;
+};
+
 DragDropAction.prototype.dragOver = function(overElement, eventProperties, configCallback) {
   var params = parseParams(overElement, eventProperties, configCallback)
     , events = ['mousemove', 'mouseover', 'dragover'];
@@ -318,6 +329,9 @@ function call(instance, methodName, args) {
 var dragMock = {
   dragStart: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'dragStart', arguments);
+  },
+  dragEnter: function(targetElement, eventProperties, configCallback) {
+    return call(new DragDropAction(), 'dragEnter', arguments);
   },
   dragOver: function(targetElement, eventProperties, configCallback) {
     return call(new DragDropAction(), 'dragOver', arguments);

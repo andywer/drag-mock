@@ -2,7 +2,7 @@
 var fs = require('fs');
 
 
-var EXPORT_METHODS = ['dragStart', 'dragOver', 'dragLeave', 'drop', 'delay'];
+var EXPORT_METHODS = ['dragStart', 'dragEnter', 'dragOver', 'dragLeave', 'drop', 'delay'];
 var WEBDRIVER_ASYNC_EXEC_TIMEOUT = 2000;
 
 var nextClientActionId = 1;

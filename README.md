@@ -63,6 +63,7 @@ var hoverRegion = document.querySelector('.hover-region');
 
 dragMock
   .dragStart(dragSource)
+  .dragEnter(hoverRegion)
   .dragOver(hoverRegion)
   .dragLeave(hoverRegion)
   .delay(500)
