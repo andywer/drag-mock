@@ -157,6 +157,11 @@ webdriver
 ```
 
 
+## Development
+
+First run `npm install` to install all dependencies. `gulp dist` rebuilds the dist/ contents. `gulp test` (or `npm test`) runs the test suite. The default gulp task first runs `dist`, then `test`.
+
+
 ## License
 
 This software is licensed under the terms of the MIT license. See LICENSE for details.
