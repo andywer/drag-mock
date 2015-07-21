@@ -234,7 +234,7 @@ module.exports = DragDropAction;
 
 var DataTransfer = require('./DataTransfer');
 
-var dataTransferEvents = ['drag', 'dragstart', 'dragover', 'dragend', 'drop', 'dragleave'];
+var dataTransferEvents = ['drag', 'dragstart', 'dragenter', 'dragover', 'dragend', 'drop', 'dragleave'];
 
 
 function mergeInto(destObj, srcObj) {
