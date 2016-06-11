@@ -4,7 +4,8 @@
   "description": "Trigger HTML5 drag & drop events for testing",
   "main": "index.js",
   "scripts": {
-    "precommit": "gulp && git add dist",
+    "build": "gulp",
+    "precommit": "npm run build && git add dist",
     "test": "./node_modules/.bin/gulp test"
   },
   "repository": {
