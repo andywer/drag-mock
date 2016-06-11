@@ -25,7 +25,10 @@ function webdriverExecuteAsync(self, script, parameters, callback) {
 
   self.webdriver
     .timeoutsAsyncScript(WEBDRIVER_ASYNC_EXEC_TIMEOUT)
-    .executeAsync(new Function('done', scriptBody), callback);
+    .executeAsync(new Function('done', scriptBody))
+    .then(function(output) {
+        callback(output)
+    })
 }
 
 
