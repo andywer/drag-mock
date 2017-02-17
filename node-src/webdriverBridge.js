@@ -50,17 +50,47 @@ EXPORT_METHODS.forEach(function(methodName) {
     }
 
     var browserScript = function(done) {
-      var stringStartsWith = function(string, prefix) {
-        return string.indexOf(prefix) === 0;
+
+      var getStrategyForSelector = function(selector) {
+        if (stringStartsWithOneOf(selector, '/', '(', '../', './', '*/')) {
+          return 'xpath'
+        }
+        return 'css'
+      };
+
+      var findElementWithStrategy = function(selector, strategy) {
+        var result;
+        switch (strategy) {
+          case 'xpath':
+            result = document
+              .evaluate(selector, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+              .singleNodeValue;
+            break;
+          case 'css':
+            result = document.querySelector(selector);
+            break;
+        }
+        if (!result) {
+          throw new Error('Cannot find element with selector: "' + selector + '"')
+        }
+        return result
+      };
+
+      var stringStartsWithOneOf = function(string) {
+        var prefixes = [].slice.call(arguments, 1);
+        return prefixes.some(function(prefix) {
+          return string.indexOf(prefix) === 0;
+        });
       };
 
       // executed in browser context
       window._dragMockActions = window._dragMockActions || {};
       var action = window._dragMockActions[actionId] || dragMock;
 
-      if (stringStartsWith(methodName, 'drag') || stringStartsWith(methodName, 'drop')) {
+      if (stringStartsWithOneOf(methodName, 'drag', 'drop')) {
         // first argument is element selector
-        args[0] = document.querySelector(args[0]);
+        var strategy = getStrategyForSelector(args[0]);
+        args[0] = findElementWithStrategy(args[0], strategy);
       }
       action = action[methodName].apply(action, args);
 
