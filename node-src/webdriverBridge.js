@@ -51,34 +51,23 @@ EXPORT_METHODS.forEach(function(methodName) {
 
     var browserScript = function(done) {
 
-      var getStrategyForSelector = function(selector) {
-        if (stringStartsWithOneOf(selector, '/', '(', '../', './', '*/')) {
-          return 'xpath'
-        }
-        return 'css'
-      };
-
-      var findElementWithStrategy = function(selector, strategy) {
+      var findElement = function(selector) {
         var result;
-        switch (strategy) {
-          case 'xpath':
-            result = document
-              .evaluate(selector, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
-              .singleNodeValue;
-            break;
-          case 'css':
-            result = document.querySelector(selector);
-            break;
+        if (stringStartsWithOneOf(selector, ['/', '(', '../', './', '*/'])) {
+          result = document
+            .evaluate(selector, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+            .singleNodeValue;
+        } else {
+          result = document.querySelector(selector);
         }
         if (!result) {
-          throw new Error('Cannot find element with selector: "' + selector + '"')
+          throw new Error('Cannot find element with selector: "' + selector + '"');
         }
-        return result
+        return result;
       };
 
-      var stringStartsWithOneOf = function(string) {
-        var prefixes = [].slice.call(arguments, 1);
-        return prefixes.some(function(prefix) {
+      var stringStartsWithOneOf = function(string, prefixArray) {
+        return prefixArray.some(function(prefix) {
           return string.indexOf(prefix) === 0;
         });
       };
@@ -87,10 +76,9 @@ EXPORT_METHODS.forEach(function(methodName) {
       window._dragMockActions = window._dragMockActions || {};
       var action = window._dragMockActions[actionId] || dragMock;
 
-      if (stringStartsWithOneOf(methodName, 'drag', 'drop')) {
+      if (stringStartsWithOneOf(methodName, ['drag', 'drop'])) {
         // first argument is element selector
-        var strategy = getStrategyForSelector(args[0]);
-        args[0] = findElementWithStrategy(args[0], strategy);
+        args[0] = findElement(args[0]);
       }
       action = action[methodName].apply(action, args);
 
