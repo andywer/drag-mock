@@ -50,17 +50,35 @@ EXPORT_METHODS.forEach(function(methodName) {
     }
 
     var browserScript = function(done) {
-      var stringStartsWith = function(string, prefix) {
-        return string.indexOf(prefix) === 0;
+
+      var findElement = function(selector) {
+        var result;
+        if (stringStartsWithOneOf(selector, ['/', '(', '../', './', '*/'])) {
+          result = document
+            .evaluate(selector, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+            .singleNodeValue;
+        } else {
+          result = document.querySelector(selector);
+        }
+        if (!result) {
+          throw new Error('Cannot find element with selector: "' + selector + '"');
+        }
+        return result;
+      };
+
+      var stringStartsWithOneOf = function(string, prefixArray) {
+        return prefixArray.some(function(prefix) {
+          return string.indexOf(prefix) === 0;
+        });
       };
 
       // executed in browser context
       window._dragMockActions = window._dragMockActions || {};
       var action = window._dragMockActions[actionId] || dragMock;
 
-      if (stringStartsWith(methodName, 'drag') || stringStartsWith(methodName, 'drop')) {
+      if (stringStartsWithOneOf(methodName, ['drag', 'drop'])) {
         // first argument is element selector
-        args[0] = document.querySelector(args[0]);
+        args[0] = findElement(args[0]);
       }
       action = action[methodName].apply(action, args);
 
