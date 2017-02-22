@@ -130,6 +130,8 @@ The following events are provided with a fake (but fully functional) dataTransfe
 
 ## webdriver.io integration
 
+**Note: Will not work with newer webdriver versions. Feel free to open a PR if you have got a fix.**
+
 If you are running Selenium tests using webdriver.io and you need drag &amp; drop functionality beyond Selenium's dragAndDrop()
 you can easily integrate drag-mock into webdriver. CSS selectors and XPath strings are both accepted as arguments.
 
